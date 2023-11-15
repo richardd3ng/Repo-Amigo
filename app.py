@@ -1,30 +1,24 @@
-import git
 import os
 import shutil
 import subprocess
-import openai
 import uuid
-import hashlib
-import tempfile
 from collections import defaultdict
 from urllib.parse import urlparse
 import streamlit as st
+import file_utils
 
+st.title('Repo Amigo - Your GitHub Chatbot!')
 
-st.title('Repo Amigo')
 
 if github_url := st.text_input('GitHub Link to public repo:'):
-    temp_dir = tempfile.TemporaryDirectory()
     try:
-        st.write(temp_dir.name)
         repo_name = urlparse(github_url).path.split("/")[-1]
-        repo_path = os.path.join(temp_dir.name, repo_name)
-        st.write(repo_path)
-        git.Repo.clone_from(github_url, repo_path)
+        repo_path = os.path.join("./", repo_name)
+        with st.spinner('Cloning repo... (this may take a while depending on size)'):
+            file_utils.clone_repo(github_url, repo_path)
+        st.success('Succesfully cloned!')
     except Exception as e:
         st.error(f'Invalid GitHub URL: {e}')
-    finally:
-        temp_dir.cleanup()
 
 # DB_PATH = os.path.join('./', f'db_{REPO_NAME}')
 
