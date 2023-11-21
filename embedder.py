@@ -26,15 +26,17 @@ class Embedder:
         self.retriever.search_kwargs['fetch_k'] = 100
         self.retriever.search_kwargs['maximal_marginal_relevance'] = True
         self.retriever.search_kwargs['k'] = 10
+        return self.retriever
 
     def get_answer(self, question):
-        llm = ChatOpenAI(model_name="gpt-3.5-turbo")
+        llm = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.2)
         qa = ConversationalRetrievalChain.from_llm(llm=llm, retriever=self.retriever)
         result = qa({'question': question, 'chat_history': self.chat_history})
         answer = result['answer']
         self.chat_history.append((question, answer))
         return answer    
     
+    # should refactor this back to file_utils
     def _split_documents(self):
         document_chunks = []
         for dir_path, _, file_names in os.walk(self.repo_path):

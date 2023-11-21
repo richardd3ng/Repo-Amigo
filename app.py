@@ -11,7 +11,7 @@ os.environ['OPENAI_API_KEY'] = st.secrets['openai_api_key']
 st.title('Repo Amigo - Your GitHub Chatbot!')
 
 embedder = None
-if github_url := st.text_input('GitHub Link (must be public repo)'):
+if github_url := st.text_input('GitHub Link (must be public)'):
     try:
         repo_name = urlparse(github_url).path.split("/")[-1]
         repo_path = os.path.join(DATA_ROOT, REPOS_DIR_NAME, repo_name)
@@ -26,26 +26,21 @@ if github_url := st.text_input('GitHub Link (must be public repo)'):
             embedder.load_db()
         st.success('Ready for questions!')
 
-        # Initialize chat history
-        if "messages" not in st.session_state:
-            st.session_state.messages = []
-
-        # Display chat messages from history on app rerun
-        for message in st.session_state.messages:
+        if 'messages' not in st.session_state:
+            st.session_state['messages'] = []
+        for message in st.session_state['messages']:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-        if question := st.text_input('Ask a question about the repo:'):
-            # Add user message to chat history
-            st.session_state.messages.append({"role": "user", "content": question})
-            # Display user message in chat message container
+        if question := st.chat_input('What do you want to know about this repo?'):
+            st.session_state['messages'].append({"role": "user", "content": question})
             with st.chat_message("user"):
                 st.markdown(question)
-            # Display assistant response in chat message container
-            answer = embedder.get_answer(question)
-            # Display assistant response in chat message container
+            with st.spinner('Thinking...'):
+                answer = embedder.get_answer(question)
             with st.chat_message("assistant"):
-                st.markdown(answer)
+                message_placeholder = st.empty()
+                message_placeholder.markdown(answer)
             # Add assistant response to chat history
             st.session_state.messages.append({"role": "assistant", "content": answer})
 
