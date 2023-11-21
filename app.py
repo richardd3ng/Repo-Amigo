@@ -10,7 +10,6 @@ os.environ['OPENAI_API_KEY'] = st.secrets['openai_api_key']
 
 st.title('Repo Amigo - Your GitHub Chatbot!')
 
-embedder = None
 if github_url := st.text_input('GitHub Link (must be public)'):
     try:
         repo_name = urlparse(github_url).path.split("/")[-1]
