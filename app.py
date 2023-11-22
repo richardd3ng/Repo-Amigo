@@ -2,21 +2,17 @@ import os
 from urllib.parse import urlparse
 import streamlit as st
 from streamlit_oauth import OAuth2Component
-from dotenv import load_dotenv
 
 from constants import *
 from embedder import Embedder
 import file_utils
 
-load_dotenv()
-client_id = os.environ["GITHUB_CLIENT_ID"]
-client_secret = os.environ["GITHUB_CLIENT_SECRET"]
-
 st.title("Repo Amigo - Your GitHub Chatbot!")
 
+
 oauth2 = OAuth2Component(
-    client_id=client_id,
-    client_secret=client_secret,
+    client_id=st.secrets["GITHUB_CLIENT_ID"],
+    client_secret=st.secrets["GITHUB_CLIENT_SECRET"],
     authroize_endpoint=GITHUB_AUTHORIZATION_URL,
     token_endpoint=GITHUB_TOKEN_URL,
     refresh_token_endpoint=None,
@@ -53,7 +49,8 @@ else:
             if "messages" not in st.session_state:
                 st.session_state["messages"] = []
             for message in st.session_state["messages"]:
-                st.markdown(message["content"])
+                with st.chat_message(message["role"]):
+                    st.markdown(message["content"])
 
             if question := st.chat_input("What do you want to know about this repo?"):
                 st.session_state["messages"].append(

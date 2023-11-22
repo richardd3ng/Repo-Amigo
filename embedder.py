@@ -1,4 +1,5 @@
 import os
+import streamlit as st
 
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
@@ -6,6 +7,8 @@ from langchain.document_loaders import TextLoader, NotebookLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
+
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 
 class Embedder:
@@ -43,7 +46,6 @@ class Embedder:
         self.chat_history.append((question, answer))
         return answer
 
-    # should refactor this back to file_utils
     def _split_documents(self):
         document_chunks = []
         for dir_path, _, file_names in os.walk(self.repo_path):
