@@ -28,11 +28,14 @@ if "access_token" not in st.session_state:
         st.rerun()
 else:
     access_token = st.session_state["access_token"]
-    print(f"found token:{access_token}")
+    print(f"found token: {access_token}")
     if github_url := st.text_input("GitHub Link (must be public)"):
         try:
             repo_name = urlparse(github_url).path.split("/")[-1]
             repo_path = os.path.join(DATA_ROOT, REPOS_DIR_NAME, repo_name)
+            print(f"repo_name: {repo_name}")
+            print(f"repo_path: {repo_path}")
+
             db_path = os.path.join(DATA_ROOT, DB_DIR_NAME, repo_name)
 
             with st.spinner(
