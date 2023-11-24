@@ -12,24 +12,22 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 
 class Embedder:
-    def __init__(self, repo_path, db_path):
+    def __init__(self, repo_path):
         self.repo_path = repo_path
-        self.db_path = db_path
+        # self.db_path = db_path
         self.chat_history = []
 
     def load_db(self):
         embeddings = OpenAIEmbeddings(disallowed_special=())
-        if not os.path.exists(self.db_path):
-            document_chunks = self._split_documents()
-            self.db = Chroma.from_documents(
-                documents=document_chunks,
-                embedding=embeddings,
-                persist_directory=self.db_path,
-            )
-        else:
-            self.db = Chroma(
-                persist_directory=self.db_path, embedding_function=embeddings
-            )
+        print("before chunking docs")
+        document_chunks = self._split_documents()
+        print("after chunking docs")
+        self.db = Chroma.from_documents(
+            documents=document_chunks,
+            embedding=embeddings,
+            # persist_directory=self.db_path,
+        )
+        print("after making db")
 
         self.retriever = self.db.as_retriever()
         self.retriever.search_kwargs["distance_metric"] = "cos"
