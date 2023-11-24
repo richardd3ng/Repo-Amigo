@@ -3,7 +3,16 @@ from urllib.parse import urlparse
 import streamlit as st
 from streamlit_oauth import OAuth2Component
 
-from constants import *
+from constants import (
+    CLIENT_ID,
+    CLIENT_SECRET,
+    GITHUB_AUTHORIZATION_URL,
+    GITHUB_TOKEN_URL,
+    REDIRECT_URI,
+    DATA_ROOT,
+    REPOS_DIR_NAME,
+    DB_DIR_NAME,
+)
 from embedder import Embedder
 import file_utils
 
@@ -12,8 +21,8 @@ st.title("Repo Amigo - Your GitHub Chatbot!")
 print("HELLO!!!!!!!!!!!!!!!!!!2")
 
 oauth2 = OAuth2Component(
-    client_id=st.secrets["GITHUB_CLIENT_ID"],
-    client_secret=st.secrets["GITHUB_CLIENT_SECRET"],
+    client_id=CLIENT_ID,
+    client_secret=CLIENT_SECRET,
     authroize_endpoint=GITHUB_AUTHORIZATION_URL,
     token_endpoint=GITHUB_TOKEN_URL,
     refresh_token_endpoint=None,
