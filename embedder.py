@@ -4,7 +4,7 @@ import streamlit as st
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import TextLoader, NotebookLoader
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 
@@ -18,17 +18,21 @@ class Embedder:
         self.chat_history = []
 
     def load_db(self):
-        embeddings = OpenAIEmbeddings(disallowed_special=())
+        embedding_function = SentenceTransformerEmbeddings(
+            model_name="all-MiniLM-L6-v2"
+        )
         if not os.path.exists(self.db_path):
             document_chunks = self._split_documents()
+            print(f"db_path: {self.db_path}")
             self.db = Chroma.from_documents(
                 documents=document_chunks,
-                embedding=embeddings,
+                embedding=embedding_function,
                 persist_directory=self.db_path,
             )
         else:
+            print(f"loading db from directory: {self.db_path}")
             self.db = Chroma(
-                persist_directory=self.db_path, embedding_function=embeddings
+                persist_directory=self.db_path, embedding_function=embedding_function
             )
 
         self.retriever = self.db.as_retriever()
@@ -36,9 +40,12 @@ class Embedder:
         self.retriever.search_kwargs["fetch_k"] = 100
         self.retriever.search_kwargs["maximal_marginal_relevance"] = True
         self.retriever.search_kwargs["k"] = 10
+
+    def get_retriever(self):
         return self.retriever
 
     def get_answer(self, question):
+        print(f"chat history: {self.chat_history}")
         llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.2)
         qa = ConversationalRetrievalChain.from_llm(llm=llm, retriever=self.retriever)
         result = qa({"question": question, "chat_history": self.chat_history})
