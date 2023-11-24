@@ -1,7 +1,9 @@
 import git
 import os
 import re
-import shutil
+from collections import defaultdict
+from langchain.document_loaders import TextLoader, NotebookLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 
 def clone_repo(github_url, repo_path, access_token):
@@ -18,7 +20,29 @@ def clone_repo(github_url, repo_path, access_token):
     git.Repo.clone_from(url_with_token, repo_path)
 
 
-def delete_repo(repo_path):
-    if not os.path.exists(repo_path):
-        return
-    shutil.rmtree(repo_path)
+def split_files(repo_path):
+    extension_freqs = defaultdict(int)
+    document_chunks = []
+    for dir_path, _, file_names in os.walk(repo_path):
+        for file in file_names:
+            file_path = os.path.join(dir_path, file)
+            ext = os.path.splitext(file)[1]
+            loader = TextLoader(file_path, encoding="utf-8")
+            try:
+                if ext == ".ipynb":
+                    loader = NotebookLoader(
+                        file_path,
+                        include_outputs=True,
+                        max_output_length=20,
+                        remove_newline=True,
+                    )
+                document_chunks.extend(
+                    loader.load_and_split(
+                        text_splitter=RecursiveCharacterTextSplitter(chunk_size=250)
+                    )
+                )
+                extension_freqs[ext] += 1
+            except Exception as e:
+                pass
+
+    return (extension_freqs, document_chunks)

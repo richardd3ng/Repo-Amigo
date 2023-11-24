@@ -14,6 +14,7 @@ from constants import (
     DB_DIR_NAME,
 )
 from embedder import Embedder
+from questions import QuestionContext, get_answer
 import file_utils
 
 st.title("Repo Amigo - Your GitHub Chatbot!")
@@ -49,15 +50,16 @@ else:
             db_path = os.path.join(DATA_ROOT, DB_DIR_NAME, repo_name)
 
             with st.spinner(
-                "Cloning repo... (this may take a while depending on size)"
+                f"Cloning {repo_name}... (this may take a while depending on size)"
             ):
                 file_utils.clone_repo(github_url, repo_path, access_token)
-            st.success("Succesfully cloned!")
 
             embedder = Embedder(repo_path, db_path)
-            with st.spinner("Embedding documents..."):
+            with st.spinner(
+                f"Embedding documents for {repo_name}... (this may take a while depending on size)"
+            ):
                 embedder.load_db()
-            st.success("Ready for questions!")
+            st.success(f"Ready for questions about {repo_name}!")
 
             if "messages" not in st.session_state:
                 st.session_state["messages"] = []
@@ -65,20 +67,36 @@ else:
                 with st.chat_message(message["role"]):
                     st.markdown(message["content"])
 
-            if question := st.chat_input("What do you want to know about this repo?"):
+            if question := st.chat_input(
+                f"What do you want to know about {repo_name}?"
+            ):
                 st.session_state["messages"].append(
                     {"role": "user", "content": question}
                 )
                 with st.chat_message("user"):
                     st.markdown(question)
                 with st.spinner("Thinking..."):
-                    answer = embedder.get_answer(question)
+                    if "chat_history" not in st.session_state:
+                        st.session_state["chat_history"] = ""
+
+                    context = QuestionContext(
+                        repo_name,
+                        github_url,
+                        st.session_state["chat_history"],
+                        st.session_state["extension_freqs"],
+                    )
+                    answer = get_answer(question, context, embedder.retriever)
+                    st.session_state[
+                        "chat_history"
+                    ] += f"Question: {question}\nAnswer: {answer}\n"
+
                 with st.chat_message("assistant"):
                     message_placeholder = st.empty()
                     message_placeholder.markdown(answer)
-                st.session_state.messages.append(
+                st.session_state["messages"].append(
                     {"role": "assistant", "content": answer}
                 )
+                print(f"message_history: {st.session_state['messages']}")
 
         except Exception as e:
             st.error(f"Error: {e}")
