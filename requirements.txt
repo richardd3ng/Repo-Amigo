@@ -11,3 +11,4 @@ setuptools
 streamlit
 streamlit_oauth
 openai
+chromadb
