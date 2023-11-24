@@ -36,7 +36,7 @@ else:
             print(f"repo_name: {repo_name}")
             print(f"repo_path: {repo_path}")
 
-            # db_path = os.path.join(DATA_ROOT, DB_DIR_NAME, repo_name)
+            db_path = os.path.join(DATA_ROOT, DB_DIR_NAME, repo_name)
 
             with st.spinner(
                 "Cloning repo... (this may take a while depending on size)"
@@ -44,8 +44,7 @@ else:
                 file_utils.clone_repo(github_url, repo_path, access_token)
             st.success("Succesfully cloned!")
 
-            # print(f"db_path: {db_path}")
-            embedder = Embedder(repo_path)
+            embedder = Embedder(repo_path, db_path)
             with st.spinner("Embedding documents..."):
                 embedder.load_db()
             st.success("Ready for questions!")
