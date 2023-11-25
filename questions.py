@@ -1,6 +1,8 @@
 import streamlit as st
+from langchain import LLMChain
 from langchain.chat_models import ChatOpenAI
-from langchain import LLMChain, PromptTemplate
+from langchain.prompts import PromptTemplate
+from state_store import State, get_state
 
 
 class QuestionContext:
@@ -41,13 +43,15 @@ def form_prompt_template():
 
 
 def get_answer(question, context: QuestionContext, retriever):
-    chat_history = st.session_state["chat_history"]
-    print(f"chat history: {chat_history}")
+    chat_history = get_state(State.CHAT_HISTORY)
+    print(f"chat_history: {chat_history}")
+    print(f"extension_freqs: {context.extension_freqs}")
 
     llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.2)
     llm_chain = LLMChain(prompt=form_prompt_template(), llm=llm)
 
     relevant_documents = retriever.invoke(question)
+    print(f"relevant_docs: {relevant_documents}")
     phrased_context = f"This question is about the GitHub repository '{context.repo_name}' available at {context.github_url}. The most relevant documents are:\n\n{relevant_documents}"
 
     answer = llm_chain.run(

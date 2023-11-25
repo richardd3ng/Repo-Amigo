@@ -9,15 +9,12 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 def clone_repo(github_url, repo_path, access_token):
     if os.path.exists(repo_path):
         return
-    if "github.com" not in github_url:
-        raise Exception("Invalid GitHub URL")
     try:
         parts = re.split(r"(github\.com)", github_url)
         url_with_token = f"{parts[0]}{access_token}@{parts[1]}{parts[2]}"
-        print(f"url with token: {url_with_token}")
+        git.Repo.clone_from(url_with_token, repo_path)
     except:
         raise Exception("Invalid GitHub URL")
-    git.Repo.clone_from(url_with_token, repo_path)
 
 
 def split_files(repo_path):
@@ -38,7 +35,9 @@ def split_files(repo_path):
                     )
                 document_chunks.extend(
                     loader.load_and_split(
-                        text_splitter=RecursiveCharacterTextSplitter(chunk_size=250)
+                        text_splitter=RecursiveCharacterTextSplitter(
+                            chunk_size=3000, chunk_overlap=200
+                        )
                     )
                 )
                 extension_freqs[ext] += 1

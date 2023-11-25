@@ -4,6 +4,7 @@ import streamlit as st
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.vectorstores import Chroma
 from file_utils import split_files
+from state_store import State, set_state
 
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
@@ -21,8 +22,7 @@ class Embedder:
         )
         if not os.path.exists(self.db_path):
             extension_freqs, document_chunks = split_files(self.repo_path)
-            if "extension_freqs" not in st.session_state:
-                st.session_state["extension_freqs"] = extension_freqs
+            set_state(State.EXTENSION_FREQS, extension_freqs)
             self.db = Chroma.from_documents(
                 documents=document_chunks,
                 embedding=embedding_function,
@@ -38,4 +38,4 @@ class Embedder:
         self.retriever.search_kwargs["distance_metric"] = "cos"
         self.retriever.search_kwargs["fetch_k"] = 100
         self.retriever.search_kwargs["maximal_marginal_relevance"] = True
-        self.retriever.search_kwargs["k"] = 10        
+        self.retriever.search_kwargs["k"] = 10
