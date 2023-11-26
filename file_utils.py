@@ -35,9 +35,7 @@ def split_files(repo_path):
                     )
                 document_chunks.extend(
                     loader.load_and_split(
-                        text_splitter=RecursiveCharacterTextSplitter(
-                            chunk_size=3000, chunk_overlap=200
-                        )
+                        text_splitter=RecursiveCharacterTextSplitter(chunk_size=250)
                     )
                 )
                 extension_freqs[ext] += 1

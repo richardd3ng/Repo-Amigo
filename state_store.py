@@ -43,5 +43,4 @@ def get_state(key):
 
 def reset_current_repo_states():
     for key in REPO_STATES:
-        print(key)
         set_state(key, copy.deepcopy(STATE_DEFAULTS[key]))

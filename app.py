@@ -61,8 +61,8 @@ else:
             with st.spinner(
                 f"Embedding documents for {repo_name}... (this may take a while depending on size)"
             ):
-                # embedder.load_db()
-                pass
+                embedder.load_db()
+                # pass
             st.success(f"Ready for questions about {repo_name}!")
 
             if get_state(State.CURRENT_REPO) != github_url:
@@ -88,8 +88,8 @@ else:
                         get_state(State.CHAT_HISTORY),
                         get_state(State.EXTENSION_FREQS),
                     )
-                    # answer = get_answer(question, context, embedder.retriever)
-                    answer = "temp answer"
+                    answer = get_answer(question, context, embedder.retriever)
+                    # answer = "temp answer"
                     set_state(
                         State.CHAT_HISTORY,
                         get_state(State.CHAT_HISTORY)

@@ -24,7 +24,6 @@ def form_prompt_template():
             a. Purpose/features - describe.
             b. Functions/code - give details/samples.
             c. Setup/usage - give instructions.
-        4. Unsure? Say "I'm not sure."
 
         Answer:
     """
@@ -44,14 +43,10 @@ def form_prompt_template():
 
 def get_answer(question, context: QuestionContext, retriever):
     chat_history = get_state(State.CHAT_HISTORY)
-    print(f"chat_history: {chat_history}")
-    print(f"extension_freqs: {context.extension_freqs}")
-
     llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.2)
     llm_chain = LLMChain(prompt=form_prompt_template(), llm=llm)
 
     relevant_documents = retriever.invoke(question)
-    print(f"relevant_docs: {relevant_documents}")
     phrased_context = f"This question is about the GitHub repository '{context.repo_name}' available at {context.github_url}. The most relevant documents are:\n\n{relevant_documents}"
 
     answer = llm_chain.run(
