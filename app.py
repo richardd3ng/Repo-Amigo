@@ -85,16 +85,9 @@ else:
                     context = QuestionContext(
                         repo_name,
                         github_url,
-                        get_state(State.CHAT_HISTORY),
                         get_state(State.EXTENSION_FREQS),
                     )
                     answer = get_answer(question, context, embedder.retriever)
-                    # answer = "temp answer"
-                    set_state(
-                        State.CHAT_HISTORY,
-                        get_state(State.CHAT_HISTORY)
-                        + f"Question: {question}\nAnswer: {answer}\n",
-                    )
 
                 with st.chat_message("assistant"):
                     message_placeholder = st.empty()

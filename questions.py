@@ -1,21 +1,20 @@
 import streamlit as st
-from langchain import LLMChain
+from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from state_store import State, get_state
 
 
 class QuestionContext:
-    def __init__(self, repo_name, github_url, chat_history, extension_freqs):
+    def __init__(self, repo_name, github_url, extension_freqs):
         self.repo_name = repo_name
         self.github_url = github_url
-        self.chat_history = chat_history
         self.extension_freqs = extension_freqs
 
 
 def form_prompt_template():
     template = """
-        Repo: {repo_name} ({github_url}) | Conv: {chat_history} | Q: {question} | FileCount: {extension_freqs} | Docs: {relevant_documents}
+        Repo: {repo_name} ({github_url}) | Q: {question} | FileCount: {extension_freqs} | Docs: {relevant_documents}
 
         Instr:
         1. Answer based on context/docs.
@@ -32,7 +31,6 @@ def form_prompt_template():
         input_variables=[
             "repo_name",
             "github_url",
-            "chat_history",
             "question",
             "extension_freqs",
             "relevant_documents",
@@ -42,7 +40,6 @@ def form_prompt_template():
 
 
 def get_answer(question, context: QuestionContext, retriever):
-    chat_history = get_state(State.CHAT_HISTORY)
     llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.2)
     llm_chain = LLMChain(prompt=form_prompt_template(), llm=llm)
 
@@ -54,7 +51,6 @@ def get_answer(question, context: QuestionContext, retriever):
         context=phrased_context,
         repo_name=context.repo_name,
         github_url=context.github_url,
-        chat_history=context.chat_history,
         extension_freqs=context.extension_freqs,
         relevant_documents=relevant_documents,
     )

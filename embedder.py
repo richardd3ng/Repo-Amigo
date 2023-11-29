@@ -29,7 +29,6 @@ class Embedder:
                 persist_directory=self.db_path,
             )
         else:
-            print(f"loading db from directory: {self.db_path}")
             self.db = Chroma(
                 persist_directory=self.db_path, embedding_function=embedding_function
             )
