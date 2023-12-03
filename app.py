@@ -29,6 +29,7 @@ init_states()
 st.title("Repo Amigo - Your GitHub Chatbot!")
 
 if is_default_init(State.ACCESS_TOKEN):
+    print(f"url: {REDIRECT_URI}")
     oauth2 = OAuth2Component(
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
