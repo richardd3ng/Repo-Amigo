@@ -1,5 +1,6 @@
 import streamlit as st
-from config import DEV_MODE
+
+DEV_MODE = st.secrets["DEV_MODE"] == "True"
 
 # directories
 DATA_ROOT = "./temp_data"
