@@ -97,6 +97,7 @@ pydantic_core==2.14.5
 pydeck==0.8.1b0
 Pygments==2.17.2
 PyPika==0.48.9
+pysqlite3-binary
 python-dateutil==2.8.2
 python-dotenv==1.0.0
 pytz==2023.3.post1

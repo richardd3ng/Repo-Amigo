@@ -3,6 +3,11 @@ from urllib.parse import urlparse
 import streamlit as st
 from streamlit_oauth import OAuth2Component
 
+__import__("pysqlite3")
+import sys
+
+sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+
 from constants import (
     CLIENT_ID,
     CLIENT_SECRET,
@@ -45,7 +50,6 @@ if is_default_init(State.ACCESS_TOKEN):
         st.rerun()
 else:
     access_token = get_state(State.ACCESS_TOKEN)
-    print(f"found token: {access_token}")
     if github_url := st.text_input("GitHub Link (must be public)"):
         try:
             repo_name = urlparse(github_url).path.split("/")[-1]
